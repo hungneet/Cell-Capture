@@ -1,0 +1,17 @@
+fileFormatVersion: 2
+guid: b55b4d9fd3985b74981d3aba1d4fb271
+MonoImporter:
+  externalObjects: {}
+  serializedVersion: 2
+  defaultReferences:
+  - cellPrefab: {instanceID: 0}
+  - tankPrefab: {fileID: 1368900456090924798, guid: 2572c488713ba3a42ae11946a84efa08,
+      type: 3}
+  - player1Tank: {instanceID: 0}
+  - player2Tank: {instanceID: 0}
+  - TankParent: {instanceID: 0}
+  executionOrder: 0
+  icon: {instanceID: 0}
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
