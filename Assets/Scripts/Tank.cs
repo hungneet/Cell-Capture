@@ -44,6 +44,7 @@ namespace Topebox.Tankwars
 
         public Constants.Direction GetNextMove(GameState game, Constants.CellType[,] logicMap, Vector2 otherPosition)
         {
+            
             var myPosition = CurrentCell;
             var enemyPosition = otherPosition;
 
@@ -80,6 +81,7 @@ namespace Topebox.Tankwars
 
             //TODO: Your logic here
             return availableMove[Random.Range(0, availableMove.Count)]; //temp return random move
+
         }
     }
 }

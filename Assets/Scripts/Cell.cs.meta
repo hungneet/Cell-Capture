@@ -5,14 +5,10 @@ MonoImporter:
   serializedVersion: 2
   defaultReferences:
   - SpriteRenderer: {instanceID: 0}
-  - EmptySprite: {fileID: 7482667652216324306, guid: 01a0059f2e50c354e8b7243737b17a66,
-      type: 3}
-  - WallSprite: {fileID: 7482667652216324306, guid: 6a6316f1452e44541b57963d8c28cd24,
-      type: 3}
-  - RedSprite: {fileID: 7482667652216324306, guid: 1b7207943291b844ea3b7395eeddfa6f,
-      type: 3}
-  - BlueSprite: {fileID: 7482667652216324306, guid: 7a839ec9f7bf91a4f87aaeccbd91ef5c,
-      type: 3}
+  - EmptySprite: {instanceID: 0}
+  - WallSprite: {instanceID: 0}
+  - RedSprite: {instanceID: 0}
+  - BlueSprite: {instanceID: 0}
   executionOrder: 0
   icon: {instanceID: 0}
   userData: 
