@@ -231,7 +231,7 @@ Camera:
   m_BackGroundColor: {r: 0.17381631, g: 0.26230296, b: 0.4245283, a: 0}
   m_projectionMatrixMode: 1
   m_GateFitMode: 2
-  m_FOVAxisMode: 0
+  m_FOVAxisMode: 1
   m_Iso: 200
   m_ShutterSpeed: 0.005
   m_Aperture: 16
@@ -475,8 +475,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: b55b4d9fd3985b74981d3aba1d4fb271, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  Player1Position: {x: 0, y: 0}
-  Player2Position: {x: 9, y: 9}
   Config:
     MapWidth: 10
     MapHeight: 10
@@ -491,8 +489,7 @@ MonoBehaviour:
   player2Tank: {fileID: 0}
   TankParent: {fileID: 510588463}
   CurrentPlayer: 1
-  IsGameOver: 0
-  IsMoving: 0
+  is2Player: 0
 --- !u!4 &461079448
 Transform:
   m_ObjectHideFlags: 0

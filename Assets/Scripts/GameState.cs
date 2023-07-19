@@ -1,30 +1,33 @@
 using DG.Tweening;
-using System.Collections.Generic;
-using System.Linq;
 using UnityEngine;
 
 namespace Topebox.Tankwars
 {
     public class GameState : MonoBehaviour
     {
-        public Vector2 Player1Position;
-        public Vector2 Player2Position;
-
         public GameConfig Config;
         private Constants.CellType[,] logicMap;
         private Cell[,] displayMap;
         public Cell cellPrefab;
 
+        Vector2 Player1Position;
+        Vector2 Player2Position;
         public Tank tankPrefab;
         public Tank player1Tank;
         public Tank player2Tank;
         public Transform TankParent;
 
+        [SerializeField, Range(1, 2)]
         public int CurrentPlayer = 1;
-        private bool isPlayerTurn = true;
 
-        public bool IsGameOver = false;
-        public bool IsMoving = false;
+        [SerializeField]
+        public bool is2Player = false;
+
+        [SerializeField]
+        public bool is2PlayerAI = false;
+
+        bool IsGameOver = false;
+        bool IsMoving = false;
 
         private void Start()
         {
@@ -32,6 +35,8 @@ namespace Topebox.Tankwars
             displayMap = new Cell[Config.MapWidth, Config.MapHeight];
             GenerateMap();
             UpdateMap();
+            Player1Position = new Vector2(0, 0);
+            Player2Position = new Vector2(Config.MapWidth - 1, Config.MapHeight - 1);
             player1Tank = CreateTank(Player1Position, Config.Player1Type, 1);
             OccupyPosition(Player1Position, player1Tank.CurrentTank);
             player2Tank = CreateTank(Player2Position, Config.Player2Type, 2);
@@ -53,26 +58,35 @@ namespace Topebox.Tankwars
                 return;
             }
 
-            if (isPlayerTurn)
+            /*int captured = GetCapturedCellsCount(logicMap, player1Tank.CurrentTank);
+            Debug.LogError($"captured {captured}");*/
+
+            // Check for player input and update the move accordingly
+            if (player1Tank.PlayerId == CurrentPlayer)
             {
-                // Check for player input and update the move accordingly
-                if (player1Tank.PlayerId == CurrentPlayer)
+                if (is2PlayerAI)
                 {
-                    if (
-                        Input.GetKeyDown(KeyCode.UpArrow) || Input.GetKeyDown(KeyCode.DownArrow) ||
-                        Input.GetKeyDown(KeyCode.LeftArrow) || Input.GetKeyDown(KeyCode.RightArrow))
-                    {
-                        HandlePlayerInput(player1Tank);
-                    }
+                    HandleAIMove(player1Tank);
+                }
+                else if (Input.GetKeyDown(KeyCode.W) || Input.GetKeyDown(KeyCode.S) || Input.GetKeyDown(KeyCode.A) || Input.GetKeyDown(KeyCode.D))
+                {
+                    HandlePlayerInput(player1Tank);
                 }
             }
-            else
+
+           else if (player2Tank.PlayerId == CurrentPlayer)
             {
-                // AI turn
-                if (player2Tank.PlayerId == CurrentPlayer)
+                if (!is2Player)
                 {
-                    // Perform AI move
                     HandleAIMove(player2Tank);
+                }
+                else
+                {
+                    if (Input.GetKeyDown(KeyCode.UpArrow) || Input.GetKeyDown(KeyCode.DownArrow) ||
+                        Input.GetKeyDown(KeyCode.LeftArrow) || Input.GetKeyDown(KeyCode.RightArrow))
+                    {
+                        HandlePlayerInput(player2Tank);
+                    }
                 }
             }
         }
@@ -86,28 +100,26 @@ namespace Topebox.Tankwars
             {
                 UpdateMoveForTank(currentTank, nextCell);
                 CurrentPlayer = (CurrentPlayer == 1) ? 2 : 1;
-                isPlayerTurn = false;
             }
         }
 
-
         private Constants.Direction GetInputDirection()
         {
-            if (Input.GetKeyDown(KeyCode.UpArrow))
+            if (Input.GetAxis("Horizontal") > 0)
             {
-                return Constants.Direction.UP;
+                return Constants.Direction.RIGHT;
             }
-            else if (Input.GetKeyDown(KeyCode.DownArrow))
-            {
-                return Constants.Direction.DOWN;
-            }
-            else if (Input.GetKeyDown(KeyCode.LeftArrow))
+            else if (Input.GetAxis("Horizontal") < 0)
             {
                 return Constants.Direction.LEFT;
             }
-            else if (Input.GetKeyDown(KeyCode.RightArrow))
+            else if (Input.GetAxis("Vertical") > 0)
             {
-                return Constants.Direction.RIGHT;
+                return Constants.Direction.UP;
+            }
+            else if (Input.GetAxis("Vertical") < 0)
+            {
+                return Constants.Direction.DOWN;
             }
 
             return 0;
@@ -118,15 +130,11 @@ namespace Topebox.Tankwars
             var direction = currentTank.GetNextMove(this, logicMap, player1Tank.CurrentCell);
             var nextCell = GetNextCell(currentTank.CurrentCell, direction);
 
-            if (IsValidCell(nextCell))
-            {
-                UpdateMoveForTank(currentTank, nextCell);
-                CurrentPlayer = (CurrentPlayer == 1) ? 2 : 1;
-                isPlayerTurn = true;
-            }
+            UpdateMoveForTank(currentTank, nextCell);
+            CurrentPlayer = (CurrentPlayer == 1) ? 2 : 1;
         }
 
-        private Constants.GameResult CheckGameOver()
+        public Constants.GameResult CheckGameOver()
         {
             var hasMoveP1 = HasValidMove(player1Tank.CurrentCell);
             var hasMoveP2 = HasValidMove(player2Tank.CurrentCell);
@@ -213,10 +221,13 @@ namespace Topebox.Tankwars
             {
                 case Constants.Direction.UP:
                     return new Vector3(0, 0, 0);
+
                 case Constants.Direction.LEFT:
                     return new Vector3(0, 0, 90);
+
                 case Constants.Direction.DOWN:
                     return new Vector3(0, 0, 180);
+
                 case Constants.Direction.RIGHT:
                     return new Vector3(0, 0, 270);
             }
@@ -243,6 +254,7 @@ namespace Topebox.Tankwars
                     case Constants.TankType.RED:
                         logicMap[(int)cell.x, (int)cell.y] = Constants.CellType.RED;
                         break;
+
                     case Constants.TankType.BLUE:
                         logicMap[(int)cell.x, (int)cell.y] = Constants.CellType.BLUE;
                         break;
@@ -258,17 +270,19 @@ namespace Topebox.Tankwars
             {
                 case Constants.Direction.UP:
                     return new Vector2(currentPosition.x, currentPosition.y - 1);
+
                 case Constants.Direction.LEFT:
                     return new Vector2(currentPosition.x - 1, currentPosition.y);
+
                 case Constants.Direction.DOWN:
                     return new Vector2(currentPosition.x, currentPosition.y + 1);
+
                 case Constants.Direction.RIGHT:
                     return new Vector2(currentPosition.x + 1, currentPosition.y);
             }
 
             return currentPosition;
         }
-
 
         private Tank CreateTank(Vector2 cell, Constants.TankType tankType, int playerId)
         {
@@ -304,7 +318,6 @@ namespace Topebox.Tankwars
 
         private void GenerateMap()
         {
-            
             // Generate random map
             for (int i = 0; i < Config.WallCount / 2; i++)
             {
@@ -317,21 +330,18 @@ namespace Topebox.Tankwars
                 {
                     x = Random.Range(0, Config.MapWidth);
                     y = Random.Range(0, Config.MapHeight);
-
                     isPlayer1Position = (x == Player1Position.x && y == Player1Position.y);
                     isPlayer2Position = (x == Player2Position.x && y == Player2Position.y);
-                    mayStuck = (x == 0 && y == 1) || (x == 1 && y == 0);
-                    
+                    mayStuck = (x == 0 && y == 1) || (x == 1 && y == 0) || (x==9 && y ==8) || (x==8 &&y==9);
                 }
                 while (isPlayer1Position || isPlayer2Position || mayStuck);
 
-                int x2 = 9 - x;
-                int y2 = 9 - y;
+                int x2 = Config.MapWidth - x -1;
+                int y2 = Config.MapHeight - y -1;
 
                 logicMap[x, y] = Constants.CellType.WALL;
                 logicMap[x2, y2] = Constants.CellType.WALL;
             }
-
 
             for (int x = 0; x < Config.MapWidth; x++)
             {
@@ -345,5 +355,20 @@ namespace Topebox.Tankwars
             }
         }
 
+        public int GetCapturedCellsCount(Constants.CellType[,] logicmap, Constants.TankType CurrentTank)
+        {
+            int capturedCellsCount = 0;
+            for (int i = 0; i < logicmap.GetLength(0); i++)
+            {
+                for (int j = 0; j < logicmap.GetLength(1); j++)
+                {
+                    if ((int)logicmap[i, j] == (int)CurrentTank+2)
+                    {
+                        capturedCellsCount++;
+                    }
+                }
+            }
+            return capturedCellsCount;
+        }
     }
 }

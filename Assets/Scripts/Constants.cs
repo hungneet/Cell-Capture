@@ -15,17 +15,19 @@ namespace Topebox.Tankwars
             EMPTY,
             WALL,
             RED,
-            BLUE,
-        } 
-        
+            BLUE
+
+
+        }
+
         public enum GameResult
         {
-            PLAYING,
-            DRAW,
+            PLAYING ,
+            DRAW ,
             PLAYER1_WIN,
             PLAYER2_WIN,
         }
-        
+
         public enum TankType
         {
             RED,
