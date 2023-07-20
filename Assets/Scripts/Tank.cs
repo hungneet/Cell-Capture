@@ -10,10 +10,12 @@ namespace Topebox.Tankwars
     public class Tank : MonoBehaviour
     {
         public Constants.TankType CurrentTank = Constants.TankType.RED;
+        public Constants.TankType EnemyTank = Constants.TankType.BLUE;
         public SpriteRenderer SpriteRenderer;
         public Sprite RedSprite;
         public Sprite BlueSprite;
         public int PlayerId;
+        public bool fillMode = false;
         public Vector2 CurrentCell;
 
         public void SetType(Constants.TankType tankType)
@@ -24,11 +26,13 @@ namespace Topebox.Tankwars
                 case Constants.TankType.RED:
                     SpriteRenderer.sprite = RedSprite;
                     SpriteRenderer.color = Color.red;
+                    EnemyTank = Constants.TankType.BLUE;
                     break;
 
                 case Constants.TankType.BLUE:
                     SpriteRenderer.sprite = BlueSprite;
                     SpriteRenderer.color = Color.blue;
+                    EnemyTank = Constants.TankType.RED;
                     break;
             }
         }
@@ -43,11 +47,11 @@ namespace Topebox.Tankwars
             CurrentCell = pos;
         }
 
-        public Constants.Direction GetNextMove(GameState game, Constants.CellType[,] logicMap, Vector2 otherPosition)
+        public Constants.Direction GetNextMove(GameState game, Constants.CellType[,] logicMap, int[,] scoreMap, Vector2 otherPosition, bool isFillMode)
         {
             var myPosition = CurrentCell;
-            var enemyPosition = otherPosition;
-            bool isMaximizing = game.CurrentPlayer == 1;
+            //var enemyPosition = otherPosition;
+            //bool isMaximizing = game.CurrentPlayer == 1;
             var availableMove = GetAvailableMoves(game, myPosition);
 
 
@@ -56,9 +60,35 @@ namespace Topebox.Tankwars
 
             if (availableMove.Count == 1) // if there is only one available move, return it
                 return availableMove[0];
+            int maxScore = 0;
+            var bestMove = availableMove[0];
+            var canMove = new List<Constants.Direction>();
+            
+            foreach (var move in availableMove)
+            {   
+                var pos = game.GetNextCell(myPosition, move);
+                if (scoreMap[(int)pos.x, (int)pos.y] > maxScore)
+                {
+                    maxScore = scoreMap[(int)pos.x, (int)pos.y];
+                    bestMove = move;
+                }
+                else if (scoreMap[(int)pos.x, (int)pos.y] == maxScore)
+                {
+                    canMove.Add(move);
+                }
+            }
 
+            if (canMove.Count > 0)
+            {
+                return canMove[Random.Range(0, canMove.Count)];
+            }
+            else
+            return bestMove;
             // If no capturing moves available, choose a random move
-            return availableMove[Random.Range(0, availableMove.Count)];
+            //return availableMove[Random.Range(0, availableMove.Count)];
+
+            // Implement the Minimax algorithm with alpha-beta pruning
+            
         }
 
         private List<Constants.Direction> GetAvailableMoves(GameState game, Vector2 position)
@@ -91,6 +121,7 @@ namespace Topebox.Tankwars
 
             return availableMove;
         }
+
 
     }
 }

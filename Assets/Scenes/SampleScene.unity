@@ -490,6 +490,7 @@ MonoBehaviour:
   TankParent: {fileID: 510588463}
   CurrentPlayer: 1
   is2Player: 0
+  is2PlayerAI: 1
 --- !u!4 &461079448
 Transform:
   m_ObjectHideFlags: 0
