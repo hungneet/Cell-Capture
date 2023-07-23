@@ -10,7 +10,7 @@ namespace Topebox.Tankwars
         public Cell[,] displayMap;
         public int[,] scoreMap;
         public int[,] scoreMapFillMode;
-        public bool isFillMode = false;
+        
         public Cell cellPrefab;
 
         [HideInInspector]
@@ -46,6 +46,7 @@ namespace Topebox.Tankwars
             logicMap = new Constants.CellType[Config.MapWidth, Config.MapHeight];
             displayMap = new Cell[Config.MapWidth, Config.MapHeight];
             scoreMap = new int[Config.MapWidth, Config.MapHeight];
+            scoreMapFillMode = new int[Config.MapWidth, Config.MapHeight];
             GenerateMap();
             UpdateMap();
             Player1Position = new Vector2(0, 0);
@@ -142,7 +143,8 @@ namespace Topebox.Tankwars
         private void HandleAIMove(Tank currentTank)
         {
             var enemeyPosition = (currentTank.PlayerId == 1) ? player2Tank.CurrentCell : player1Tank.CurrentCell;
-            var direction = currentTank.GetNextMove(this, logicMap, scoreMap, enemeyPosition, isFillMode);
+            var map = (currentTank.fillMode) ? scoreMapFillMode : scoreMap;
+            var direction = currentTank.GetNextMove(this, logicMap, map, enemeyPosition);
             var nextCell = GetNextCell(currentTank.CurrentCell, direction);
 
             UpdateMoveForTank(currentTank, nextCell);
@@ -166,7 +168,7 @@ namespace Topebox.Tankwars
 
             return Constants.GameResult.PLAYING; //not over
         }
-
+        
         public bool HasValidMove(Vector2 currentCell)
         {
             var upCell = GetNextCell(currentCell, Constants.Direction.UP);
@@ -267,9 +269,9 @@ namespace Topebox.Tankwars
         {
             if (logicMap[(int)cell.x, (int)cell.y] == Constants.CellType.EMPTY)
             {
-                scoreMap[(int)cell.x, (int)cell.y] = -1;
+                scoreMapFillMode[(int)cell.x, (int)cell.y] = -1;
                 switch (tankType)
-                {
+                {   
                     case Constants.TankType.RED:
                         logicMap[(int)cell.x, (int)cell.y] = Constants.CellType.RED;
 
@@ -363,8 +365,8 @@ namespace Topebox.Tankwars
 
                 logicMap[x, y] = Constants.CellType.WALL;
                 logicMap[x2, y2] = Constants.CellType.WALL;
-                scoreMap[x, y] = -1;
-                scoreMap[x2, y2] = -1;
+                scoreMapFillMode[x, y] = -1;
+                scoreMapFillMode[x2, y2] = -1;
             }
             int medium = Config.MapHeight / 2;
             for (int y = 0; y < Config.MapHeight; y++)
@@ -377,20 +379,18 @@ namespace Topebox.Tankwars
                     displayMap[x, y] = cell;
 
                     //Assign score to scoreMap
-                    if (scoreMap[x, y] != -1)
+
+                    if (y < medium - 1)
+                        scoreMap[x, y] = y + 1;
+                    else if (y <= medium)
                     {
-                        if (y < medium - 1)
-                            scoreMap[x, y] = y + 1;
-                        else if (y <= medium)
-                        {
-                            if (x < medium)
-                                scoreMap[x, y] = medium + x;
-                            else if (x >= medium)
-                                scoreMap[x, y] = scoreMap[Config.MapWidth - x - 1, y];
-                        }
-                        else
-                            scoreMap[x, y] = Config.MapHeight - y;
+                        if (x < medium)
+                            scoreMap[x, y] = medium + x;
+                        else if (x >= medium)
+                            scoreMap[x, y] = scoreMap[Config.MapWidth - x - 1, y];
                     }
+                    else
+                        scoreMap[x, y] = Config.MapHeight - y;
                 }
             }
         }
@@ -413,6 +413,35 @@ namespace Topebox.Tankwars
 
         public void TurnOnFillMode()
         {
+            
+            /*for (int i = 0; i < Config.MapWidth; i++)
+            {
+                for (int j = 0; j < Config.MapHeight; j++)
+                {
+                    if (logicMap[i, j] == Constants.CellType.EMPTY)
+                    {
+                        scoreMapFillMode[i, j] = scoreMap[i, j];
+                    }
+                    else
+                    {
+                        scoreMapFillMode[i, j] = -1;
+                    }
+                }
+            }*/
+        }
+        public void CheckDeadEnd( Vector2 pos)
+        {
+            var Upcell = GetNextCell(pos, Constants.Direction.UP);
+            var Downcell = GetNextCell(pos, Constants.Direction.DOWN);
+            var Leftcell = GetNextCell(pos, Constants.Direction.LEFT);
+            var Rightcell = GetNextCell(pos, Constants.Direction.RIGHT);
+
+           if( !IsValidCell(Upcell) && !IsValidCell(Downcell) && !IsValidCell(Leftcell) && !IsValidCell(Rightcell))
+            {
+                scoreMap[(int)pos.x,(int)pos.y] = -100;
+            }
+
+
         }
     }
 }

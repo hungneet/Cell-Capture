@@ -47,14 +47,14 @@ namespace Topebox.Tankwars
             CurrentCell = pos;
         }
 
-        public Constants.Direction GetNextMove(GameState game, Constants.CellType[,] logicMap, int[,] scoreMap, Vector2 otherPosition, bool isFillMode)
+        public Constants.Direction GetNextMove(GameState game, Constants.CellType[,] logicMap, int[,] scoreMap, Vector2 otherPosition)
         {
             var myPosition = CurrentCell;
             //var enemyPosition = otherPosition;
             //bool isMaximizing = game.CurrentPlayer == 1;
             var availableMove = GetAvailableMoves(game, myPosition);
 
-
+            
             if (availableMove.Count == 0) // if there are no available moves, return DOWN
                 return Constants.Direction.DOWN;
 
@@ -66,16 +66,22 @@ namespace Topebox.Tankwars
             
             foreach (var move in availableMove)
             {   
-                var pos = game.GetNextCell(myPosition, move);
-                if (scoreMap[(int)pos.x, (int)pos.y] > maxScore)
-                {
-                    maxScore = scoreMap[(int)pos.x, (int)pos.y];
-                    bestMove = move;
-                }
-                else if (scoreMap[(int)pos.x, (int)pos.y] == maxScore)
-                {
-                    canMove.Add(move);
-                }
+                /*if( !fillMode)
+                {*/
+                    var pos = game.GetNextCell(myPosition, move);
+                    game.CheckDeadEnd(pos);
+                    if (scoreMap[(int)pos.x, (int)pos.y] > maxScore)
+                    {
+                        maxScore = scoreMap[(int)pos.x, (int)pos.y];
+                        bestMove = move;
+                    }
+                    else if (scoreMap[(int)pos.x, (int)pos.y] == maxScore)
+                    {
+                        canMove.Add(move);
+                    }
+                    
+                //}
+                
             }
 
             if (canMove.Count > 0)
@@ -84,10 +90,6 @@ namespace Topebox.Tankwars
             }
             else
             return bestMove;
-            // If no capturing moves available, choose a random move
-            //return availableMove[Random.Range(0, availableMove.Count)];
-
-            // Implement the Minimax algorithm with alpha-beta pruning
             
         }
 
