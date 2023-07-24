@@ -103,6 +103,8 @@ namespace Topebox.Tankwars
                     }
                 }
             }
+
+
         }
 
         private void HandlePlayerInput(Tank currentTank)
@@ -440,8 +442,46 @@ namespace Topebox.Tankwars
             {
                 scoreMap[(int)pos.x,(int)pos.y] = -100;
             }
+        }
 
+        public Constants.Direction LeftOrRight(Vector2 leftCell, Vector2 rightCell)
+        {
+            if(IsValidCell(leftCell) && IsValidCell(rightCell))
+            {
+               var left = GetNextCell(leftCell,Constants.Direction.LEFT);
+                var right = GetNextCell(rightCell,Constants.Direction.RIGHT);
+                return LeftOrRight(left, right);
+            }
+            else if (IsValidCell(leftCell) && !IsValidCell(rightCell))
+            {
+                return Constants.Direction.LEFT;
+            }
+            else if (!IsValidCell(leftCell) && IsValidCell(rightCell))
+            {
+                return Constants.Direction.RIGHT;
+            }
 
+            return Constants.Direction.LEFT;
+        }
+
+        public Constants.Direction UpOrDown(Vector2 upCell, Vector2 downCell)
+        {
+              if (IsValidCell(upCell) && IsValidCell(downCell))
+            {
+                var up = GetNextCell(upCell,Constants.Direction.UP);
+                var down = GetNextCell(downCell,Constants.Direction.DOWN);
+                return UpOrDown(up, down);
+            }
+            else if (IsValidCell(upCell) && !IsValidCell(downCell))
+            {
+                return Constants.Direction.UP;
+            }
+            else if (!IsValidCell(upCell) && IsValidCell(downCell))
+            {
+                return Constants.Direction.DOWN;
+            }
+            
+            return Constants.Direction.DOWN;
         }
     }
 }

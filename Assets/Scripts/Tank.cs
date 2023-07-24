@@ -54,12 +54,30 @@ namespace Topebox.Tankwars
             //bool isMaximizing = game.CurrentPlayer == 1;
             var availableMove = GetAvailableMoves(game, myPosition);
 
+            //check if there only two available moves and they are go left or right
+            
             
             if (availableMove.Count == 0) // if there are no available moves, return DOWN
                 return Constants.Direction.DOWN;
 
             if (availableMove.Count == 1) // if there is only one available move, return it
                 return availableMove[0];
+
+            if (availableMove.Count == 2 && (availableMove.Contains(Constants.Direction.LEFT) && availableMove.Contains(Constants.Direction.RIGHT)))
+            {
+                var leftCell = game.GetNextCell(myPosition, Constants.Direction.LEFT);
+                var rightCell = game.GetNextCell(myPosition, Constants.Direction.RIGHT);
+                var move = game.LeftOrRight(leftCell, rightCell);
+                return move;
+            }
+            if (availableMove.Count == 2 && (availableMove.Contains(Constants.Direction.UP) && availableMove.Contains(Constants.Direction.DOWN)))
+            {
+                var upCell = game.GetNextCell(myPosition, Constants.Direction.UP);
+                var downCell = game.GetNextCell(myPosition, Constants.Direction.DOWN);
+                var move = game.UpOrDown(upCell, downCell);
+                return move;
+            }
+
             int maxScore = 0;
             var bestMove = availableMove[0];
             var canMove = new List<Constants.Direction>();
