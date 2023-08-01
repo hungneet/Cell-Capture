@@ -9,7 +9,7 @@ namespace Topebox.Tankwars
         public Constants.CellType[,] logicMap;
         public Cell[,] displayMap;
         public int[,] scoreMap;
-        public int[,] scoreMapFillMode;
+
         
         public Cell cellPrefab;
 
@@ -46,7 +46,6 @@ namespace Topebox.Tankwars
             logicMap = new Constants.CellType[Config.MapWidth, Config.MapHeight];
             displayMap = new Cell[Config.MapWidth, Config.MapHeight];
             scoreMap = new int[Config.MapWidth, Config.MapHeight];
-            scoreMapFillMode = new int[Config.MapWidth, Config.MapHeight];
             GenerateMap();
             UpdateMap();
             Player1Position = new Vector2(0, 0);
@@ -145,7 +144,7 @@ namespace Topebox.Tankwars
         private void HandleAIMove(Tank currentTank)
         {
             var enemeyPosition = (currentTank.PlayerId == 1) ? player2Tank.CurrentCell : player1Tank.CurrentCell;
-            var map = (currentTank.fillMode) ? scoreMapFillMode : scoreMap;
+            var map = scoreMap;
             var direction = currentTank.GetNextMove(this, logicMap, map, enemeyPosition);
             var nextCell = GetNextCell(currentTank.CurrentCell, direction);
 
@@ -171,6 +170,7 @@ namespace Topebox.Tankwars
             return Constants.GameResult.PLAYING; //not over
         }
         
+
         public bool HasValidMove(Vector2 currentCell)
         {
             var upCell = GetNextCell(currentCell, Constants.Direction.UP);
@@ -271,7 +271,7 @@ namespace Topebox.Tankwars
         {
             if (logicMap[(int)cell.x, (int)cell.y] == Constants.CellType.EMPTY)
             {
-                scoreMapFillMode[(int)cell.x, (int)cell.y] = -1;
+                
                 switch (tankType)
                 {   
                     case Constants.TankType.RED:
@@ -367,8 +367,8 @@ namespace Topebox.Tankwars
 
                 logicMap[x, y] = Constants.CellType.WALL;
                 logicMap[x2, y2] = Constants.CellType.WALL;
-                scoreMapFillMode[x, y] = -1;
-                scoreMapFillMode[x2, y2] = -1;
+
+
             }
             int medium = Config.MapHeight / 2;
             for (int y = 0; y < Config.MapHeight; y++)
@@ -396,41 +396,7 @@ namespace Topebox.Tankwars
                 }
             }
         }
-
-        /*public int GetCapturedCellsCount(Constants.CellType[,] logicmap, Constants.TankType CurrentTank)
-        {
-            int capturedCellsCount = 0;
-            for (int i = 0; i < logicmap.GetLength(0); i++)
-            {
-                for (int j = 0; j < logicmap.GetLength(1); j++)
-                {
-                    if ((int)logicmap[i, j] == (int)CurrentTank+2)
-                    {
-                        capturedCellsCount++;
-                    }
-                }
-            }
-            return capturedCellsCount;
-        }*/
-
-        public void TurnOnFillMode()
-        {
-            
-            /*for (int i = 0; i < Config.MapWidth; i++)
-            {
-                for (int j = 0; j < Config.MapHeight; j++)
-                {
-                    if (logicMap[i, j] == Constants.CellType.EMPTY)
-                    {
-                        scoreMapFillMode[i, j] = scoreMap[i, j];
-                    }
-                    else
-                    {
-                        scoreMapFillMode[i, j] = -1;
-                    }
-                }
-            }*/
-        }
+       
         public void CheckDeadEnd( Vector2 pos)
         {
             var Upcell = GetNextCell(pos, Constants.Direction.UP);
