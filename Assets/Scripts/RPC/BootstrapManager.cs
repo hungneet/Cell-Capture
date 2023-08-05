@@ -37,18 +37,16 @@ namespace Unity.Netcode.Samples
                 // "Random Teleport" button will only be shown to clients
                 if (networkManager.IsClient)
                 {
-                    if (GUILayout.Button("Random Teleport"))
-                    {
+                    
                         if (networkManager.LocalClient != null)
                         {
-                            // Get `BootstrapPlayer` component from the player's `PlayerObject`
+                            
                             if (networkManager.LocalClient.PlayerObject.TryGetComponent(out RpcChat chat))
                             {
                                 // Invoke a `ServerRpc` from client-side to teleport player to a random position on the server-side
                                 
                             }
                         }
-                    }
                 }
             }
 
